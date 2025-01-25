@@ -28,7 +28,7 @@ export default function DiscoverScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Discover big Hackathons</Text>
+            <Text style={styles.title}>Discover Hackathons</Text>
             <FlatList
                 data={hackathons}
                 renderItem={renderHackathonItem}
@@ -47,7 +47,6 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         marginBottom: 20,
-        color: "#fff",
     },
     hackathonItem: {
         backgroundColor: "#f0f0f0",
