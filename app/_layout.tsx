@@ -1,108 +1,89 @@
 import { useEffect } from "react";
-import { useColorScheme } from "react-native";
+import { View } from "react-native";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import { SplashScreen } from "expo-router";
-import { NavigationContainer, ThemeProvider } from "@react-navigation/native";
-import LoginScreen from "./(auth)/login";
-const fonts = {
-    regular: {
-        fontFamily: "SpaceMono",
-        fontWeight: "400" as "400", // Explicitly specifying the literal type
-    },
-    medium: {
-        fontFamily: "SpaceMono",
-        fontWeight: "500" as "500",
-    },
-    bold: {
-        fontFamily: "SpaceMono",
-        fontWeight: "700" as "700",
-    },
-    heavy: {
-        fontFamily: "SpaceMono",
-        fontWeight: "800" as "800",
-    },
-};
+import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
-export default function RootLayout() {
-    const colorScheme = useColorScheme();
-    const [loaded] = useFonts({
-        SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    });
+function RootLayoutNav() {
+    const { isLoading, user } = useAuth();
 
-    useEffect(() => {
-        if (loaded) {
-            SplashScreen.hideAsync();
-        }
-    }, [loaded]);
-
-    if (!loaded) {
-        return null;
+    if (isLoading) {
+        return <View />;
     }
 
     return (
-        <ThemeProvider value={colorScheme === "dark" ? darkTheme : lightTheme}>
-            {/* <NavigationContainer>
-                <Stack.Navigator initialRouteName="Login">
+        <Stack
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: "#0F172A",
+                },
+                headerTintColor: "#fff",
+                headerTitleStyle: {
+                    fontFamily: "Inter-SemiBold",
+                },
+            }}
+        >
+            {!user ? (
+                <Stack.Screen
+                    name="login"
+                    options={{
+                        title: "Login",
+                        headerShown: false,
+                    }}
+                />
+            ) : (
+                <>
                     <Stack.Screen
-                        name="Login"
-                        component={LoginScreen}
-                        options={{ headerShown: false }}
+                        name="discover" // Changed route name
+                        options={{
+                            title: "Discover",
+                        }}
                     />
-                    <Stack.Screen name="Discover" component={DiscoverScreen} />
                     <Stack.Screen
-                        name="HackathonDetail"
-                        component={HackathonDetailScreen}
+                        name="hackathon/[id]"
+                        options={({ route }) => ({
+                            title: `Hackathon: ${
+                                route.params?.title || "Details"
+                            }`,
+                            headerBackTitle: "Back",
+                        })}
                     />
-                    <Stack.Screen name="Register" component={RegisterScreen
-                      
-                    } />
-                </Stack.Navigator>
-            </NavigationContainer> */}
-            <Stack>
-                <Stack.Screen
-                    name="(auth)/login"
-                    options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                    name="(app)/discover"
-                    options={{ title: "Discover Hackathons" }}
-                />
-                <Stack.Screen
-                    name="(app)/hackathon/[id]"
-                    options={{ title: "Hackathon Details" }}
-                />
-                <Stack.Screen
-                    name="(app)/register/[id]"
-                    options={{ title: "Register" }}
-                />
-            </Stack>
-        </ThemeProvider>
+                    <Stack.Screen
+                        name="register/[id]"
+                        options={({ route }) => ({
+                            title: `Register for ${
+                                route.params?.title || "Hackathon"
+                            }`,
+                            headerBackTitle: "Back",
+                            presentation: "modal",
+                        })}
+                    />
+                </>
+            )}
+        </Stack>
     );
 }
 
-const darkTheme = {
-    dark: true,
-    colors: {
-        primary: "#64748b",
-        background: "#0f172a",
-        card: "#1e293b",
-        text: "#f8fafc",
-        border: "#334155",
-        notification: "#64748b",
-    },
-    fonts,
-};
+export default function RootLayout() {
+    // const [loaded] = useFonts({
+    //     "Inter-Regular": require("../assets/fonts/Inter-Regular.ttf"),
+    //     "Inter-Medium": require("../assets/fonts/Inter-Medium.ttf"),
+    //     "Inter-SemiBold": require("../assets/fonts/Inter-SemiBold.ttf"),
+    //     "Inter-Bold": require("../assets/fonts/Inter-Bold.ttf"),
+    // });
 
-const lightTheme = {
-    dark: false,
-    colors: {
-        primary: "#64748b",
-        background: "#f8fafc",
-        card: "#ffffff",
-        text: "#0f172a",
-        border: "#e2e8f0",
-        notification: "#64748b",
-    },
-    fonts,
-};
+    // useEffect(() => {
+    //     if (loaded) {
+    //         SplashScreen.hideAsync();
+    //     }
+    // }, [loaded]);
+
+    // if (!loaded) return null;
+
+    return (
+        <AuthProvider>
+            <RootLayoutNav />
+        </AuthProvider>
+    );
+}
